@@ -9,3 +9,4 @@ nibabel
 tqdm
 scikit-image
 radifox
+statsmodels
