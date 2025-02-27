@@ -11,7 +11,7 @@ import torch.nn as nn
 from early_stopping import EarlyStopping
 from loss import DiceLoss
 from dataloader import ThalamusDataloader
-from unet3d_dropout import UnetL5
+from unet3d import UnetL5
 
 device = torch.device("cuda")
 gt_values = list(range(14))
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     parser.add_argument('--lr', type=float, default=1e-3, help='Learning rate.')
     parser.add_argument('--wd', type=float, default=1e-4, help='Weight decay.')
     parser.add_argument('--num_filters', type=int, default=4, help='The number of initial filters.')
-    parser.add_argument('--num_inputs', type=int, default=53, help='The number of input channels.')
+    parser.add_argument('--num_inputs', type=int, required=True, help='The number of input channels.')
     parser.add_argument('--num_outputs', type=int, default=14, help='The number of output classes.')
     args = parser.parse_args()
 
@@ -108,7 +108,7 @@ if __name__ == "__main__":
         os.mkdir(sub_path)
 
     # model, loss, optimizer, scheduler and early stop
-    model = UnetL5(in_dim=args.num_inputs, out_dim=args.num_outputs, num_filters=args.num_filters, dropout_rate=0, output_activation=nn.Softmax(dim=1)).to(device)
+    model = UnetL5(in_dim=args.num_inputs, out_dim=args.num_outputs, num_filters=args.num_filters, output_activation=nn.Softmax(dim=1)).to(device)
     lossfn = DiceLoss(num_classes=args.num_outputs, isOneHot=False, gt_values=gt_values)
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.wd)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=5, factor=0.9)
